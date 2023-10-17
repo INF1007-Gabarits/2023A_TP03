@@ -1,0 +1,4 @@
+grading_tests_file="test_assignment.py"
+test_associations_path="settings/test_associations.json"
+org_name="INF1007-2020A"
+repo_filter=""

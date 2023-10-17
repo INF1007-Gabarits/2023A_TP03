@@ -1,0 +1,28 @@
+name: Delete a file from derived template repositories
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_filter:
+        description: "Prefix to filter repositories"
+        required: true
+      path:
+        description: "A path to a file delete from repositories"
+        required: true
+        default: ""
+
+jobs:
+  delete_file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Delete file
+        run: |
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+${{ secrets.CLASSROOM_TOOLS_URL }}
+          python3 -m classroom_tools.student_repositories.delete_file \
+            --token=${{ secrets.REPO_PAT }} \
+            --org_name="$(basename $(dirname $GITHUB_REPOSITORY))" \
+            --repo_filter=${{ github.event.inputs.repo_filter }} \
+            --path=${{ github.event.inputs.path }}

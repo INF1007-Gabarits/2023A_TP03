@@ -1,0 +1,110 @@
+name: Assignment grading
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Remove student write permissions
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+${{ secrets.CLASSROOM_TOOLS_URL }}
+
+          python3 -m classroom_tools.student_repositories.access_permissions \
+            --token=${{ secrets.REPO_PAT }} \
+            --org_name="$org_name" \
+            --repo_filter="$repo_filter" \
+            --new_permission_level=pull
+
+      - name: Remove submission branch protection
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+${{ secrets.CLASSROOM_TOOLS_URL }}
+
+          python3 -m classroom_tools.student_repositories.change_branch_protection \
+            --token=${{ secrets.REPO_PAT }} \
+            --org_name="$org_name" \
+            --repo_filter="$repo_filter" \
+            --branch="remise" \
+            --protect="False"
+
+      - name: Change default branch to grading branch
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+${{ secrets.CLASSROOM_TOOLS_URL }}
+
+          python3 -m classroom_tools.student_repositories.change_default_branch \
+            --token=${{ secrets.REPO_PAT }} \
+            --org_name="$org_name" \
+            --repo_filter="$repo_filter" \
+            --branch="remise"
+
+      - uses: actions/checkout@v2
+      - name: Update students repos
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+"${{ secrets.CLASSROOM_TOOLS_URL }}"
+
+          python3 -m classroom_tools.student_repositories.delete_workflows \
+            --token=${{ secrets.REPO_WORKFLOW_PAT }} \
+            --org_name="$org_name" \
+            --repo_filter="$repo_filter" \
+            --branch="remise"
+
+          python3 -m classroom_tools.student_repositories.sync_with_template_repository \
+            --template_repo_fullname="$GITHUB_REPOSITORY" \
+            --token="${{ secrets.REPO_WORKFLOW_PAT }}" \
+            --org_name="$org_name" \
+            --repo_filter="$repo_filter" \
+            --branch="remise"
+
+      - uses: actions/checkout@v2
+      - name: Create pull requests
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+${{ secrets.CLASSROOM_TOOLS_URL }}
+
+          pull_request_body="La correction du TP est effectuer avec un Pull Request Review. "
+          pull_request_body+="La branch master contient les commits effectués avant et après la date de remise. "
+          pull_request_body+="La branch remise contient les commits effectués uniquement avant la date de remise. "
+          pull_request_body+="La branch correction contient uniquement le premier commit et est utilisée comme branch de base pour le Pull Request. "
+          pull_request_body+="Lisez les commentaires des correcteurs/trices. "
+          pull_request_body+="Pour plus d'information consulter: "
+          pull_request_body+="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/commenting-on-a-pull-request"
+
+          python3 -m classroom_tools.student_repositories.create_grading_branch_and_pull_request \
+          --token=${{ secrets.REPO_PAT }} \
+          --org_name="$org_name" \
+          --repo_filter="$repo_filter" \
+          --head="remise" \
+          --base="correction" \
+          --pull_request_title="Correction" \
+          --pull_request_body="$pull_request_body"
+
+      - uses: actions/checkout@v2
+      - name: Trigger workflows
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+${{ secrets.CLASSROOM_TOOLS_URL }}
+
+          python3 -m classroom_tools.student_repositories.trigger_workflows \
+            --token=${{ secrets.REPO_WORKFLOW_PAT }} \
+            --org_name="$org_name" \
+            --repo_filter="$repo_filter" \
+            --event_type="Assignment grading"

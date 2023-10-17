@@ -1,0 +1,106 @@
+name: Verifications
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Classroom_tools:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Verify CLASSROOM_TOOLS_URL Secret
+        run: |
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+"${{ secrets.CLASSROOM_TOOLS_URL }}"
+  Secrets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Verify secrets
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+"${{ secrets.CLASSROOM_TOOLS_URL }}"
+
+          python3 -m classroom_tools.verifications.access_to_github_secrets \
+            --token=${{ secrets.REPO_ADMIN_PAT }} \
+            --repo_fullname="$GITHUB_REPOSITORY"
+  Files_to_update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Verify files to update
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+"${{ secrets.CLASSROOM_TOOLS_URL }}"
+
+          python3 -m classroom_tools.verifications.files_to_update \
+            --token=${{ secrets.REPO_WORKFLOW_PAT }} \
+            --template_repo_fullname="$GITHUB_REPOSITORY"
+  is_template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Verify that repo is a template
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+"${{ secrets.CLASSROOM_TOOLS_URL }}"
+
+          python3 -m classroom_tools.verifications.repo_is_template \
+            --token=${{ secrets.REPO_WORKFLOW_PAT }} \
+            --repo_fullname="$GITHUB_REPOSITORY"
+  Variables:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Verify that settings/variables.txt exists
+        run: |
+          if [[ ! -f "settings/variables.txt" ]]
+          then
+            printf "File not found: settings/variables.txt\n"
+            exit 1
+          fi
+      - uses: actions/checkout@v2
+      - name: Verify test_file from settings/variables.txt
+        run: |
+          source settings/variables.txt
+          if [[ ! -f "$grading_tests_file" ]]
+          then
+            printf "File not found: $grading_tests_file\n"
+            exit 1
+          fi
+      - uses: actions/checkout@v2
+      - name: Verify test_associations_path from settings/variables.txt
+        run: |
+          source settings/variables.txt
+          if [[ ! -f "$test_associations_path" ]]
+          then
+            printf "File not found: $test_associations_path\n"
+            exit 1
+          fi
+  Testing_files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Verify test file and test_associations.json
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+"${{ secrets.CLASSROOM_TOOLS_URL }}"
+          python3 -m pip install -q -r requirements.txt
+          
+          python3 -m classroom_tools.verifications.grading_tests \
+            --test_file_path="$grading_tests_file" \
+            --test_associations_path="$test_associations_path"

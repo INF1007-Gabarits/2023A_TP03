@@ -1,0 +1,49 @@
+# This workflow is intended for student repositories
+name: Run assignment tests
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: |
+          source settings/variables.txt
+
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+${{ secrets.CLASSROOM_TOOLS_URL }}
+          python3 -m pip install -q -r requirements.txt
+
+          function run_tests() {
+            python3 "$grading_tests_file"
+            git add logs/tests_results.txt
+          }
+
+          function extract_grades() {
+            python3 -m classroom_tools.grading.create_grades \
+              --test_associations_path="$test_associations_path"
+            git add logs/grades.json
+          }
+
+          function show_grades() {
+            python3 -m classroom_tools.grading.show_grades_in_readme
+            git add README.md
+          }
+
+          function push_changes() {
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git commit -a -m "Updated autograding results"
+            git pull -v --rebase=true
+            git push -v
+          }
+
+          run_tests
+          extract_grades
+          show_grades
+          push_changes

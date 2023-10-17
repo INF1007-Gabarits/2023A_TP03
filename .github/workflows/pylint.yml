@@ -1,0 +1,33 @@
+# This workflow is intended for student repositories
+name: Pylint
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Pylint
+
+        run: |
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q pylint
+          mkdir -p pylint_reports
+          for path in $(ls -R)
+          do
+            if [[ "$path" =~ .*\.py ]]
+            then
+              report_file="pylint_reports/report_$(basename $path .py).txt"
+              printf "Creating report: $report_file"
+              python3 -m pylint --exit-zero --reports y "$path" > $report_file
+              git add $report_file
+            fi
+          done
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git commit -a -m "Added pylint reports"
+          git push
