@@ -398,7 +398,8 @@ Similairement à la fonction 5.1, cette fonction est destinée à lire la base d
    }​​​​​​​​
   ```
 
-### 6.2. creer_df(classement)
+
+### 6.2. creer_df(classement) / 4
 
 <div align="justify">
 
@@ -457,7 +458,7 @@ print(nhl_df)
 ```
 </div>
 
-### 6.3. df_extraite_divison(df, division)
+### 6.3. df_extraite_divison(df, division) / 3
 
 <div align="justify">
 
@@ -528,7 +529,7 @@ La fonction `df_extraite_divison` a pour but d'extraire et de retourner un DataF
     Anaheim      ANA  52  21  22   9   51   18  123  162   -39
   ```
 
-### 6.4. df_sort_type(df, column, ascending):
+### 6.4. df_sort_type(df, column, ascending) / 4
 
 <div align="justify">
   
@@ -608,7 +609,7 @@ La fonction `df_sort_type` permet de trier un DataFrame selon une colonne spéci
   ```
 
 
-### 6.5. df_summary_inf(df):
+### 6.5. df_summary_inf(df) / 6
 
 <div align="justify">
   
@@ -671,8 +672,7 @@ La fonction `df_summary_inf` prend en entrée un dataframe représentant les sta
   ```
 
 ## 7. Partie 3: Analyse des données <a name="part3"></a>
-### 7.1. df_summary_division(df, criteria, ascending):
-
+### 7.1. df_summary_division(df, criteria, ascending) / 10
 Cette fonction affiche un graphique visualisant le classement des équipes au sein de chaque division en fonction du critère donné (par exemple, nombre de points ou nombre de buts). Les équipes sont triées selon le critère choisi, et la direction du tri peut être spécifiée.
 
 - **Paramètre:**
@@ -710,7 +710,7 @@ Cette fonction affiche un graphique visualisant le classement des équipes au se
   </p>
 
 
-### 7.2. df_summary_league(df, criteria, ascending):
+### 7.2. df_summary_league(df, criteria, ascending) / 10
 
 Cette fonction génère un graphique illustrant le classement de toutes les équipes de la ligue en fonction d'un critère donné. Les équipes sont triées selon ce critère et la direction du tri est spécifiée.
 
@@ -762,8 +762,34 @@ Cette fonction génère un graphique illustrant le classement de toutes les équ
   <img src="Images/output_12_0.png">
   </p>
 
+### 7.3. df_groupby_div(df)/ 2
+Cette fonction prend un DataFrame Pandas contenant des informations sur les équipes de la ligue et groupe les données en fonction de la division à laquelle chaque équipe appartient. Elle renvoie un nouveau DataFrame contenant les sommes des données groupées pour chaque division
 
-### 7.3. df_secteur_div(df, type_data, ascending):
+- **Paramètre:**
+  - `df`: DataFrame Pandas qui contient les informations de toutes les équipes de la ligue.
+    
+- **Retourne :** 
+  - Un nouveau DataFrame Pandas contenant les sommes des données groupées pour chaque division.
+
+- **Lien utile :** 
+  - [Grouper dataframe avec Pandas](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html)
+
+- **Exemple:**
+
+  ```python
+  print(df_groupby_div(df))
+  ```
+  ```
+                 MJ    V   D  DP  PTS  VRP   BP   BC  DIFF
+  DIV                                                     
+  Atlantic      215  123  69  19  280  124  698  574   124
+  Central       112   68  31   7  142   60  366  298    68
+  Metropolitan  108   61  36  14  135   55  335  289    46
+  Pacific       110   67  29  13  138   63  394  315    79
+
+  ```
+
+### 7.4. df_secteur_div(df, type_data, ascending) / 10
 
 Cette fonction affiche un graphique circulaire (ou "camembert") représentant le pourcentage par division des 10 premières équipes de la ligue selon le critère spécifié. Si `type_data` vaut "PTS", par exemple, le graphique montrera le pourcentage des points accumulés par les équipes des différentes divisions parmi les 10 premières équipes.
 
@@ -773,7 +799,6 @@ Cette fonction affiche un graphique circulaire (ou "camembert") représentant le
   - `ascending`:  Direction du tri. Si `True`, le tri est ascendant, sinon il est descendant.
     
 - **Lien utile :** 
-  - [Grouper dataframe avec Pandas](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html)
   - [Pie-charts avec Plotly Express](https://plotly.com/python/pie-charts/)
     
 - **Exemple:**
@@ -801,6 +826,7 @@ Cette fonction affiche un graphique circulaire (ou "camembert") représentant le
   <p align="center">
     <img src="Images/output_16_0.png">
   </p>
+
 
   
 ## 8. Barème /100 <a name="bareme"></a>
